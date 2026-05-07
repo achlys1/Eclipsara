@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECLIPSARA — Strategy. Intellect. Legacy.</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #080d18;
+    --deep: #0d1526;
+    --navy: #111d35;
+    --panel: #141f38;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #8a6f30;
+    --silver: #a8bfd4;
+    --ice: #c8dff0;
+    --ice-dim: #7098b8;
+    --star: #f0f4ff;
+    --text-body: #8fa8c0;
+    --text-muted: #4d6580;
+    --divider: rgba(201,168,76,0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--void);
+    color: var(--text-body);
+    font-family: 'EB Garamond', serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* ── NAVIGATION ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 900;
+    padding: 22px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(8,13,24,0.98), transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 44px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--silver);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  /* ── STAR SEPARATOR ── */
+  .star-sep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  .star-sep::before, .star-sep::after {
+    content: '';
+    height: 1px;
+    width: 80px;
+    background: linear-gradient(to right, transparent, var(--gold-dim));
+  }
+
+  .star-sep::after {
+    background: linear-gradient(to left, transparent, var(--gold-dim));
+  }
+
+  .star-icon {
+    color: var(--gold);
+    font-size: 14px;
+  }
+
+  /* ── HERO ── */
+  #atrium {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Celestial background gradients */
+  #atrium::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(ellipse at center,
+      rgba(30,60,120,0.35) 0%,
+      rgba(20,40,90,0.15) 40%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  #atrium::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 200px;
+    background: linear-gradient(to bottom, var(--void), transparent);
+    pointer-events: none;
+  }
+
+  /* Stars field */
+  .star-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .star-dot {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--dur, 3s) ease-in-out infinite;
+    animation-delay: var(--del, 0s);
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: var(--a1, 0.15); }
+    50% { opacity: var(--a2, 0.7); }
+  }
+
+  /* Compass circle decoration */
+  .compass-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -58%);
+    width: 480px;
+    height: 480px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.08);
+    pointer-events: none;
+  }
+
+  .compass-ring::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.05);
+  }
+
+  /* Logo container */
+  .hero-logo-wrap {
+    position: relative;
+    margin-bottom: 28px;
+    animation: fadeRise 1.4s ease both;
+  }
+
+  @keyframes fadeRise {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-logo-wrap svg {
+    width: 180px;
+    height: 180px;
+    filter: drop-shadow(0 0 30px rgba(201,168,76,0.25));
+  }
+
+  /* Text glow pulse */
+  @keyframes glowPulse {
+    0%, 100% { text-shadow: 0 0 40px rgba(201,168,76,0.1), 0 0 80px rgba(100,150,220,0.05); }
+    50% { text-shadow: 0 0 60px rgba(201,168,76,0.2), 0 0 120px rgba(100,150,220,0.08); }
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    text-transform: uppercase;
+    line-height: 1;
+    animation: fadeRise 1.4s 0.2s ease both, glowPulse 6s 2s ease-in-out infinite;
+    position: relative;
+  }
+
+  .hero-title .pip {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    vertical-align: middle;
+    margin: 0 2px;
+    transform: translateY(-2px);
+  }
+
+  .hero-pillars {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 0.45em;
+    color: var(--silver);
+    text-transform: uppercase;
+    margin-top: 16px;
+    animation: fadeRise 1.4s 0.4s ease both;
+  }
+
+  .hero-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--ice-dim);
+    max-width: 540px;
+    margin-top: 32px;
+    line-height: 1.65;
+    animation: fadeRise 1.4s 0.6s ease both;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    margin-top: 44px;
+    padding: 14px 44px;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold-light);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: linear-gradient(135deg, rgba(201,168,76,0.07), rgba(201,168,76,0.03));
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s;
+    animation: fadeRise 1.4s 0.8s ease both;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .btn-primary:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    letter-spacing: 0.38em;
+  }
+
+  .btn-primary:hover::before { opacity: 1; }
+
+  /* ── SECTION BASE ── */
+  section {
+    padding: 100px 60px;
+    position: relative;
+  }
+
+  .section-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 12px;
+  }
+
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 600;
+    color: var(--ice);
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+
+  .section-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ice-dim);
+    max-width: 600px;
+  }
+
+  /* ── ANALYSIS GRID ── */
+  #latest {
+    background: var(--deep);
+    border-top: 1px solid var(--divider);
+    border-bottom: 1px solid var(--divider);
+  }
+
+  #latest::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 60px,
+        rgba(201,168,76,0.015) 60px,
+        rgba(201,168,76,0.015) 61px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 60px,
+        rgba(201,168,76,0.015) 60px,
+        rgba(201,168,76,0.015) 61px
+      );
+    pointer-events: none;
+  }
+
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 56px;
+    border: 1px solid var(--divider);
+  }
+
+  .analysis-card {
+    background: var(--panel);
+    padding: 36px 30px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.4s;
+    text-decoration: none;
+    display: block;
+  }
+
+  .analysis-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .analysis-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top center, rgba(201,168,76,0.05), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .analysis-card:hover { background: rgba(20, 31, 56, 1); }
+  .analysis-card:hover::before { opacity: 1; }
+  .analysis-card:hover::after { opacity: 1; }
+
+  .card-category {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--ice);
+    line-height: 1.35;
+    margin-bottom: 14px;
+    transition: color 0.3s;
+  }
+
+  .analysis-card:hover .card-title { color: var(--gold-light); }
+
+  .card-excerpt {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+  }
+
+  .card-arrow {
+    color: var(--gold);
+    font-size: 18px;
+    transition: transform 0.3s;
+  }
+
+  .analysis-card:hover .card-arrow { transform: translateX(5px); }
+
+  /* ── VISION SECTION ── */
+  #vision {
+    background: var(--void);
+    text-align: center;
+  }
+
+  .vision-text {
+    max-width: 680px;
+    margin: 30px auto 0;
+    font-size: 19px;
+    font-family: 'EB Garamond', serif;
+    color: var(--text-body);
+    line-height: 1.9;
+  }
+
+  .vision-text em {
+    color: var(--ice);
+    font-style: italic;
+  }
+
+  .pillars-row {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    margin-top: 70px;
+  }
+
+  .pillar {
+    text-align: center;
+  }
+
+  .pillar-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--gold);
+    opacity: 0.25;
+    line-height: 1;
+    display: block;
+  }
+
+  .pillar-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-top: 6px;
+    display: block;
+  }
+
+  .pillar-desc {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    max-width: 180px;
+  }
+
+  /* ── ARCHIVES ── */
+  #archives {
+    background: var(--deep);
+    border-top: 1px solid var(--divider);
+  }
+
+  .archives-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 56px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .filter-pills {
+    display: flex;
+    gap: 8px;
+  }
+
+  .pill {
+    padding: 7px 18px;
+    border: 1px solid var(--divider);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .pill:hover, .pill.active {
+    border-color: var(--gold-dim);
+    color: var(--gold-light);
+    background: rgba(201,168,76,0.06);
+  }
+
+  .archives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .archive-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    gap: 32px;
+    padding: 28px 0;
+    border-bottom: 1px solid rgba(201,168,76,0.07);
+    text-decoration: none;
+    transition: background 0.3s;
+    cursor: pointer;
+  }
+
+  .archive-item:hover { background: rgba(201,168,76,0.03); padding-left: 10px; transition: all 0.3s; }
+
+  .archive-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--gold);
+    opacity: 0.15;
+    text-align: right;
+    line-height: 1;
+  }
+
+  .archive-content {}
+
+  .archive-cat {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 6px;
+  }
+
+  .archive-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--ice);
+    transition: color 0.3s;
+  }
+
+  .archive-item:hover .archive-title { color: var(--gold-light); }
+
+  .archive-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .archive-tag {
+    padding: 5px 14px;
+    border: 1px solid var(--divider);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* ── PUZZLE OF THE WEEK ── */
+  .puzzle-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin-top: 60px;
+    border: 1px solid var(--divider);
+  }
+
+  .puzzle-board {
+    background: var(--panel);
+    aspect-ratio: 1;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+  }
+
+  .sq {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    user-select: none;
+  }
+
+  .sq.light { background: #1e2f4d; }
+  .sq.dark  { background: #111d35; }
+  .sq:hover.sq.light { background: rgba(201,168,76,0.18); }
+
+  .puzzle-info {
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .puzzle-info .section-label { margin-bottom: 20px; }
+
+  .puzzle-note {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-top: 20px;
+    line-height: 1.7;
+  }
+
+  .move-list {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .move-btn {
+    padding: 6px 16px;
+    border: 1px solid var(--divider);
+    background: transparent;
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    color: var(--silver);
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .move-btn:hover, .move-btn.reveal {
+    border-color: var(--gold);
+    color: var(--gold-light);
+    background: rgba(201,168,76,0.08);
+  }
+
+  /* ── LIBRARY ── */
+  #library {
+    background: var(--void);
+    border-top: 1px solid var(--divider);
+  }
+
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 56px;
+  }
+
+  .book-card {
+    background: var(--panel);
+    border: 1px solid var(--divider);
+    padding: 32px 24px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .book-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .book-card:hover { transform: translateY(-4px); border-color: var(--gold-dim); }
+  .book-card:hover::before { opacity: 1; }
+
+  .book-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--ice);
+    line-height: 1.4;
+    margin-bottom: 8px;
+    transition: color 0.3s;
+  }
+
+  .book-card:hover .book-title { color: var(--gold-light); }
+
+  .book-author {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .book-note {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .tool-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    border: 1px solid var(--divider);
+    text-decoration: none;
+    background: var(--panel);
+    transition: all 0.3s;
+  }
+
+  .tool-link:hover { border-color: var(--gold-dim); background: rgba(20,31,56,1); }
+
+  .tool-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .tool-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--ice);
+    transition: color 0.3s;
+  }
+
+  .tool-link:hover .tool-name { color: var(--gold-light); }
+
+  .tool-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── NEWSLETTER ── */
+  #vanguard {
+    background: var(--deep);
+    border-top: 1px solid var(--divider);
+    text-align: center;
+  }
+
+  .newsletter-wrap {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 0;
+    margin-top: 40px;
+    border: 1px solid var(--divider);
+  }
+
+  .newsletter-input {
+    flex: 1;
+    padding: 16px 20px;
+    background: var(--panel);
+    border: none;
+    color: var(--silver);
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    outline: none;
+  }
+
+  .newsletter-input::placeholder { color: var(--text-muted); font-style: italic; }
+  .newsletter-input:focus { background: rgba(20,31,56,1); }
+
+  .newsletter-btn {
+    padding: 16px 32px;
+    background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08));
+    border: none;
+    border-left: 1px solid var(--divider);
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+
+  .newsletter-btn:hover {
+    background: linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.12));
+    color: var(--gold-light);
+  }
+
+  .newsletter-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 16px;
+  }
+
+  /* ── FORUM TEASER ── */
+  #academy {
+    background: var(--void);
+    border-top: 1px solid var(--divider);
+  }
+
+  .forum-header-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--ice-dim);
+    font-style: italic;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .forum-threads {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--divider);
+  }
+
+  .thread-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--divider);
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .thread-item:last-child { border-bottom: none; }
+  .thread-item:hover { background: rgba(201,168,76,0.03); }
+
+  .thread-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--ice);
+    transition: color 0.3s;
+    margin-bottom: 4px;
+  }
+
+  .thread-item:hover .thread-title { color: var(--gold-light); }
+
+  .thread-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+  }
+
+  .thread-count {
+    text-align: right;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+  }
+
+  .thread-count strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--gold);
+    opacity: 0.5;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  /* ── INNER SANCTUM ── */
+  #sanctum {
+    background: linear-gradient(135deg, var(--deep) 0%, var(--navy) 100%);
+    border-top: 1px solid var(--divider);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #sanctum::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.07);
+    pointer-events: none;
+  }
+
+  #sanctum::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.05);
+    pointer-events: none;
+  }
+
+  .sanctum-lockup {
+    position: relative;
+    z-index: 2;
+  }
+
+  .sanctum-lock {
+    font-size: 48px;
+    margin-bottom: 24px;
+    display: block;
+    opacity: 0.4;
+  }
+
+  .sanctum-text {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 20px auto 0;
+  }
+
+  .btn-sanctum {
+    display: inline-block;
+    margin-top: 36px;
+    padding: 12px 40px;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold-dim);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--void);
+    border-top: 1px solid var(--divider);
+    padding: 60px 60px 40px;
+  }
+
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .footer-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .footer-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .footer-col-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 20px;
+  }
+
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-links a {
+    font-family: 'EB Garamond', serif;
+    font-size: 15px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover { color: var(--gold-light); }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 32px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+  }
+
+  .footer-castle {
+    font-size: 20px;
+    color: var(--gold-dim);
+    opacity: 0.5;
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── DECORATIVE RULE ── */
+  .gold-rule {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 60px 0;
+  }
+
+  .gold-rule::before, .gold-rule::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--divider));
+  }
+
+  .gold-rule::after {
+    background: linear-gradient(to left, transparent, var(--divider));
+  }
+
+  .gold-rule-diamond {
+    width: 8px;
+    height: 8px;
+    background: var(--gold-dim);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  /* Mobile */
+  @media (max-width: 900px) {
+    nav { padding: 18px 24px; }
+    .nav-links { display: none; }
+    section { padding: 70px 24px; }
+    .analysis-grid { grid-template-columns: 1fr; }
+    .books-grid { grid-template-columns: repeat(2, 1fr); }
+    .tools-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr; }
+    .puzzle-block { grid-template-columns: 1fr; }
+    .pillars-row { flex-direction: column; gap: 40px; align-items: center; }
+    .archives-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <a href="#atrium" class="nav-brand">Eclipsara</a>
+  <ul class="nav-links">
+    <li><a href="#atrium">The Atrium</a></li>
+    <li><a href="#archives">The Archives</a></li>
+    <li><a href="#library">The Library</a></li>
+    <li><a href="#academy">The Academy</a></li>
+    <li><a href="#sanctum">Inner Sanctum</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO: THE ATRIUM ── -->
+<section id="atrium">
+
+  <!-- Stars -->
+  <div class="star-field" id="starField"></div>
+  <div class="compass-ring"></div>
+
+  <!-- SVG Logo Mark -->
+  <div class="hero-logo-wrap">
+    <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="eclipseGrad" cx="35%" cy="50%" r="55%">
+          <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.6"/>
+          <stop offset="60%" stop-color="#7098b8" stop-opacity="0.15"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+      <!-- Outer ring -->
+      <circle cx="100" cy="105" r="70" stroke="#c9a84c" stroke-opacity="0.2" stroke-width="0.5"/>
+      <circle cx="100" cy="105" r="60" stroke="#c9a84c" stroke-opacity="0.1" stroke-width="0.5"/>
+      <!-- Eclipse crescent -->
+      <ellipse cx="100" cy="105" rx="50" ry="50" fill="#0d1526"/>
+      <path d="M100 55 C75 55 68 80 68 105 C68 130 75 155 100 155 C90 145 84 127 84 105 C84 83 90 65 100 55Z" fill="url(#eclipseGrad)" opacity="0.9"/>
+      <!-- Moon glow -->
+      <circle cx="78" cy="105" r="28" fill="url(#moonGlow)"/>
+      <!-- King piece silhouette -->
+      <g fill="#c9a84c" opacity="0.7">
+        <rect x="96" y="70" width="8" height="3" rx="0.5"/>
+        <rect x="99" y="67" width="2" height="9" rx="0.5"/>
+        <rect x="93" y="79" width="14" height="2.5" rx="0.5"/>
+        <path d="M91 81.5 L109 81.5 L112 108 L88 108 Z"/>
+        <rect x="87" y="108" width="26" height="3" rx="0.5"/>
+      </g>
+      <!-- Vertical line -->
+      <line x1="100" y1="35" x2="100" y2="155" stroke="#c9a84c" stroke-opacity="0.2" stroke-width="0.5"/>
+      <!-- Star burst at top -->
+      <line x1="100" y1="28" x2="100" y2="20" stroke="#c9a84c" stroke-opacity="0.8" stroke-width="1.2"/>
+      <line x1="100" y1="28" x2="94" y2="22" stroke="#c9a84c" stroke-opacity="0.5" stroke-width="0.7"/>
+      <line x1="100" y1="28" x2="106" y2="22" stroke="#c9a84c" stroke-opacity="0.5" stroke-width="0.7"/>
+      <line x1="100" y1="28" x2="92" y2="28" stroke="#c9a84c" stroke-opacity="0.4" stroke-width="0.7"/>
+      <line x1="100" y1="28" x2="108" y2="28" stroke="#c9a84c" stroke-opacity="0.4" stroke-width="0.7"/>
+      <circle cx="100" cy="28" r="2" fill="#c9a84c" opacity="0.9"/>
+      <!-- G and F marks -->
+      <text x="55" y="110" font-family="'Cormorant Garamond', serif" font-size="11" fill="#c9a84c" opacity="0.4" text-anchor="middle">G</text>
+      <text x="145" y="110" font-family="'Cormorant Garamond', serif" font-size="11" fill="#c9a84c" opacity="0.4" text-anchor="middle">F</text>
+      <!-- Checkered base -->
+      <g opacity="0.15">
+        <rect x="84" y="122" width="8" height="8" fill="#c9a84c"/>
+        <rect x="92" y="130" width="8" height="8" fill="#c9a84c"/>
+        <rect x="100" y="122" width="8" height="8" fill="#c9a84c"/>
+        <rect x="108" y="130" width="8" height="8" fill="#c9a84c"/>
+        <rect x="76" y="130" width="8" height="8" fill="#c9a84c"/>
+      </g>
+    </svg>
+  </div>
+
+  <h1 class="hero-title">ECL<span class="pip"></span>PSARA</h1>
+  <p class="hero-pillars">Strategy &nbsp;·&nbsp; Intellect &nbsp;·&nbsp; Legacy</p>
+
+  <div class="star-sep" style="margin-top:28px"><span class="star-icon">✦</span></div>
+
+  <p class="hero-quote">
+    A sanctuary for the serious student of the board.<br>
+    Navigate the shadows. Master the move.
+  </p>
+
+  <a href="#archives" class="btn-primary">Enter the Archives</a>
+</section>
+
+<!-- ── LATEST ANALYSIS ── -->
+<section id="latest">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Recently Dispatched</div>
+      <h2 class="section-heading">Chronicles of the Board</h2>
+      <p class="section-sub">The latest studies, dispatched from the Eclipsara analytical chamber.</p>
+    </div>
+
+    <div class="analysis-grid reveal" style="transition-delay:0.15s">
+      <a class="analysis-card" href="#">
+        <div class="card-category">♟ Tactical Study · Deep Analysis</div>
+        <div class="card-title">The Silence Before the Gambit: A Study of Game 34</div>
+        <div class="card-excerpt">We have identified a recurring psychological pattern at the 1200–1450 Elo range: the compulsive desire to resolve tension prematurely. Here we dissect why restraint is itself a weapon.</div>
+        <div class="card-footer">
+          <span>Issue XXXIV</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+      <a class="analysis-card" href="#">
+        <div class="card-category">♜ Opening Theory · The London System</div>
+        <div class="card-title">Architectural Permanence: Why the London Endures Centuries</div>
+        <div class="card-excerpt">The London System is not merely an opening. It is a philosophical stance—a declaration that structure outlasts brilliance. We examine its psychological underpinnings.</div>
+        <div class="card-footer">
+          <span>Issue XXXIII</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+      <a class="analysis-card" href="#">
+        <div class="card-category">♙ Psychology · Blunder Theory</div>
+        <div class="card-title">On the Phenomenology of the Catastrophic Blunder</div>
+        <div class="card-excerpt">Every serious player has experienced the abyss: a single move that collapses hours of effort. We present a systematic framework for understanding and transcending this condition.</div>
+        <div class="card-footer">
+          <span>Issue XXXII</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE VISION ── -->
+<section id="vision">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center">
+      <div class="section-label">The Eclipsara Mission</div>
+      <h2 class="section-heading">Clarity Amidst the Chaos</h2>
+    </div>
+
+    <p class="vision-text reveal" style="transition-delay:0.2s">
+      We exist for the player who has transcended beginner frustration yet remains beneath the threshold of mastery—
+      the <em>1390 Elo struggle</em>, where pattern recognition and psychological fortitude are forged in equal measure.
+      Eclipsara is not a coaching platform. It is a <em>chronicle</em>: a meticulous, unsparing record of the intermediate player's war against their own limitations.
+      Here, we do not pursue entertainment. We pursue <em>architectural truth</em>.
+    </p>
+
+    <div class="gold-rule reveal" style="transition-delay:0.3s">
+      <div class="gold-rule-diamond"></div>
+    </div>
+
+    <div class="pillars-row reveal" style="transition-delay:0.4s">
+      <div class="pillar">
+        <span class="pillar-number">I</span>
+        <span class="pillar-label">Strategy</span>
+        <p class="pillar-desc">The architecture of foresight across 64 contested squares.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-number">II</span>
+        <span class="pillar-label">Intellect</span>
+        <p class="pillar-desc">Rigorous analysis over intuition. Depth over comfort.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-number">III</span>
+        <span class="pillar-label">Legacy</span>
+        <p class="pillar-desc">The lineage of Kasparov and Fischer as north stars.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE ARCHIVES ── -->
+<section id="archives">
+  <div class="section-inner">
+    <div class="archives-header reveal">
+      <div>
+        <div class="section-label">Page II</div>
+        <h2 class="section-heading">The Archives</h2>
+        <p class="section-sub">Navigate the repository. Filter by discipline.</p>
+      </div>
+      <div class="filter-pills">
+        <button class="pill active" onclick="filterArchive(event,'all')">All</button>
+        <button class="pill" onclick="filterArchive(event,'opening')">Openings</button>
+        <button class="pill" onclick="filterArchive(event,'tactics')">Tactics</button>
+        <button class="pill" onclick="filterArchive(event,'endgame')">Endgame</button>
+        <button class="pill" onclick="filterArchive(event,'psychology')">Psychology</button>
+      </div>
+    </div>
+
+    <div class="archives-list reveal" style="transition-delay:0.15s">
+      <div class="archive-item" data-cat="opening">
+        <div class="archive-num">01</div>
+        <div class="archive-content">
+          <div class="archive-cat">Opening Theory</div>
+          <div class="archive-title">The Sicilian's Psychological Labyrinth</div>
+          <div class="archive-meta">A deep-dive into the complexity that awaits those who enter the Dragon.</div>
+        </div>
+        <div class="archive-tag">Opening</div>
+      </div>
+      <div class="archive-item" data-cat="tactics">
+        <div class="archive-num">02</div>
+        <div class="archive-content">
+          <div class="archive-cat">Middlegame Tactics</div>
+          <div class="archive-title">Five Crucial Intermezzo Tactics at the 1300 Level</div>
+          <div class="archive-meta">The in-between move that changes everything. Systematically examined.</div>
+        </div>
+        <div class="archive-tag">Tactics</div>
+      </div>
+      <div class="archive-item" data-cat="endgame">
+        <div class="archive-num">03</div>
+        <div class="archive-content">
+          <div class="archive-cat">Endgame Study</div>
+          <div class="archive-title">Lucena and Philidor: The Two Positions That Define Rook Endgames</div>
+          <div class="archive-meta">Master these and endgames cease to be the source of agony they once were.</div>
+        </div>
+        <div class="archive-tag">Endgame</div>
+      </div>
+      <div class="archive-item" data-cat="psychology">
+        <div class="archive-num">04</div>
+        <div class="archive-content">
+          <div class="archive-cat">Chess Psychology</div>
+          <div class="archive-title">On Tilt: Navigating Emotional Collapse Mid-Game</div>
+          <div class="archive-meta">We analyse the mental architecture of a blunder cascade and how to halt it.</div>
+        </div>
+        <div class="archive-tag">Psychology</div>
+      </div>
+      <div class="archive-item" data-cat="opening">
+        <div class="archive-num">05</div>
+        <div class="archive-content">
+          <div class="archive-cat">Opening Theory</div>
+          <div class="archive-title">The Unconventional Gambit: When Sacrifice Becomes Philosophy</div>
+          <div class="archive-meta">Exploring gambits not merely as openings but as declarations of intent.</div>
+        </div>
+        <div class="archive-tag">Opening</div>
+      </div>
+    </div>
+
+    <!-- Puzzle of the Week -->
+    <div class="gold-rule reveal" style="margin-top:80px">
+      <div class="gold-rule-diamond"></div>
+    </div>
+
+    <div class="reveal" style="transition-delay:0.1s">
+      <div class="section-label">Weekly Dispatch</div>
+      <h3 class="section-heading" style="font-size:clamp(22px,3vw,34px)">The Puzzle of the Week</h3>
+    </div>
+
+    <div class="puzzle-block reveal" style="transition-delay:0.2s">
+      <div class="puzzle-board" id="chessBoard"></div>
+      <div class="puzzle-info">
+        <div class="section-label">Study · Week XXII · 2025</div>
+        <h4 class="section-heading" style="font-size:24px">White to Move and Win</h4>
+        <p class="puzzle-note">
+          We have selected this position from a correspondence game played at the 1400 Elo stratum.
+          The solution requires no calculation beyond three moves — yet it demands that you first see
+          what the position is concealing from you.
+        </p>
+        <div class="move-list">
+          <button class="move-btn">1. Rf8+</button>
+          <button class="move-btn">1. Qh7+</button>
+          <button class="move-btn">1. Ne6</button>
+          <button class="move-btn reveal" id="revealBtn" onclick="revealSolution()">Reveal</button>
+        </div>
+        <p class="puzzle-note" id="solutionText" style="display:none;margin-top:16px;color:var(--gold-dim)">
+          The solution is 1. Qh7+! — a deflection sacrifice. After Kxh7, the rook delivers a back-rank mate. Study the quiet geometry.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE LIBRARY ── -->
+<section id="library">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Page III · The Scholar's Armory</div>
+      <h2 class="section-heading">The Library</h2>
+      <p class="section-sub">Curated texts and instruments for those who study in earnest.</p>
+    </div>
+
+    <div class="books-grid reveal" style="transition-delay:0.15s">
+      <a class="book-card" href="#" onclick="return false">
+        <div class="book-title">My 60 Memorable Games</div>
+        <div class="book-author">Robert James Fischer</div>
+        <div class="book-note">Perhaps the most brutally analytical collection in the history of chess literature. Fischer's annotations remain unsurpassed in their psychological candor.</div>
+      </a>
+      <a class="book-card" href="#" onclick="return false">
+        <div class="book-title">Kasparov on Kasparov: Part I</div>
+        <div class="book-author">Garry Kasparov</div>
+        <div class="book-note">A monument of self-analysis. Kasparov's willingness to expose his own errors provides a masterclass in intellectual honesty under the weight of legacy.</div>
+      </a>
+      <a class="book-card" href="#" onclick="return false">
+        <div class="book-title">Silman's Complete Endgame Course</div>
+        <div class="book-author">Jeremy Silman</div>
+        <div class="book-note">The rare chess text that acknowledges the intermediate player's psychological state. Silman teaches endgames as they are actually encountered, not as they appear in theory.</div>
+      </a>
+      <a class="book-card" href="#" onclick="return false">
+        <div class="book-title">The Life and Games of Mikhail Tal</div>
+        <div class="book-author">Mikhail Tal</div>
+        <div class="book-note">Chaos rendered legible. Tal's own account of his games demonstrates that tactical genius is not born—it is forged through a particular philosophical willingness.</div>
+      </a>
+    </div>
+
+    <div class="gold-rule reveal" style="margin-top:70px"><div class="gold-rule-diamond"></div></div>
+
+    <div class="reveal" style="transition-delay:0.1s">
+      <div class="section-label">Study Instruments</div>
+      <h3 class="section-heading" style="font-size:clamp(22px,3vw,34px)">The Scholar's Armory</h3>
+    </div>
+
+    <div class="tools-grid reveal" style="transition-delay:0.2s">
+      <a class="tool-link" href="https://lichess.org" target="_blank">
+        <div class="tool-icon">♞</div>
+        <div>
+          <div class="tool-name">Lichess Analysis Board</div>
+          <div class="tool-desc">Engine-powered game analysis. Free, open, and uncompromising.</div>
+        </div>
+      </a>
+      <a class="tool-link" href="https://chess.com" target="_blank">
+        <div class="tool-icon">♛</div>
+        <div>
+          <div class="tool-name">Chess.com Game Archive</div>
+          <div class="tool-desc">Review your own games with clinical precision.</div>
+        </div>
+      </a>
+      <a class="tool-link" href="https://www.365chess.com/opening.php" target="_blank">
+        <div class="tool-icon">♜</div>
+        <div>
+          <div class="tool-name">Opening Database</div>
+          <div class="tool-desc">Explore the vast taxonomy of recorded opening theory.</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── NEWSLETTER ── -->
+<section id="vanguard">
+  <div class="section-inner">
+    <div class="newsletter-wrap">
+      <div class="reveal">
+        <div class="section-label" style="text-align:center">Join the Vanguard</div>
+        <h2 class="section-heading" style="font-size:clamp(26px,4vw,42px)">Receive the Chronicle</h2>
+        <p class="section-sub" style="margin:0 auto;text-align:center">
+          Dispatches from the Eclipsara chamber. Analysis, puzzles, and psychological studies—delivered to the serious student.
+        </p>
+      </div>
+      <div class="newsletter-form reveal" style="transition-delay:0.2s">
+        <input class="newsletter-input" type="email" placeholder="Your correspondence address…">
+        <button class="newsletter-btn">Enter the Vanguard</button>
+      </div>
+      <p class="newsletter-note reveal" style="transition-delay:0.3s">No ornamentation. No noise. Only depth.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE ACADEMY ── -->
+<section id="academy">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Page IV · Community of Scholars</div>
+      <span class="forum-header-text">The Hall of Reason: Dialogue on the Eternal Board</span>
+      <h2 class="section-heading">The Academy Discussion</h2>
+      <p class="section-sub">A rigorously curated space for the exchange of strategic thought. Discourse at the standard of Eclipsara or not at all.</p>
+    </div>
+
+    <div class="forum-threads reveal" style="transition-delay:0.2s">
+      <div class="thread-item">
+        <div>
+          <div class="thread-title">Puzzle of the Week XXII — Discussion Thread</div>
+          <div class="thread-meta">Initiated by The Eclipsara Chamber · Week XXII</div>
+        </div>
+        <div class="thread-count">
+          <strong>47</strong>
+          Responses
+        </div>
+      </div>
+      <div class="thread-item">
+        <div>
+          <div class="thread-title">Is the London System a Philosophical Cowardice or Strategic Wisdom?</div>
+          <div class="thread-meta">A debate on structural play versus dynamic complexity</div>
+        </div>
+        <div class="thread-count">
+          <strong>31</strong>
+          Responses
+        </div>
+      </div>
+      <div class="thread-item">
+        <div>
+          <div class="thread-title">On Elo Stagnation: When Progress Ceases to Be Linear</div>
+          <div class="thread-meta">A psychological inquiry for those between 1200 and 1500</div>
+        </div>
+        <div class="thread-count">
+          <strong>28</strong>
+          Responses
+        </div>
+      </div>
+      <div class="thread-item">
+        <div>
+          <div class="thread-title">The Fischer Methodology: Applicability to the Modern Intermediate</div>
+          <div class="thread-meta">Can Fischer's preparation ethos be distilled for less than grandmaster?</div>
+        </div>
+        <div class="thread-count">
+          <strong>19</strong>
+          Responses
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INNER SANCTUM ── -->
+<section id="sanctum">
+  <div class="section-inner">
+    <div class="sanctum-lockup reveal">
+      <span class="sanctum-lock">⚿</span>
+      <div class="section-label" style="text-align:center">Page V · Reserved for the Initiated</div>
+      <h2 class="section-heading" style="text-align:center">The Inner Sanctum</h2>
+      <p class="sanctum-text">
+        A sealed chamber. The Inner Sanctum is reserved for those who have demonstrated, through their engagement with the Archives,
+        that depth is not merely sought but practiced. This space shall be revealed in time.
+      </p>
+      <br>
+      <span class="btn-sanctum">Access Sealed — Forthcoming</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Eclipsara</div>
+        <div class="footer-tagline">Strategy · Intellect · Legacy</div>
+        <p class="footer-desc">
+          A scholarly hub for the intermediate player who seeks depth over distraction, and architectural truth over comfort.
+          We chronicle the eternal struggle across 64 squares.
+        </p>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigate</div>
+        <ul class="footer-links">
+          <li><a href="#atrium">The Atrium</a></li>
+          <li><a href="#archives">The Archives</a></li>
+          <li><a href="#library">The Library</a></li>
+          <li><a href="#academy">The Academy</a></li>
+          <li><a href="#sanctum">The Inner Sanctum</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">The Correspondence</div>
+        <ul class="footer-links">
+          <li><a href="#">Contact the Chamber</a></li>
+          <li><a href="#">YouTube Chronicles</a></li>
+          <li><a href="#vanguard">Join the Vanguard</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© ECLIPSARA · All Rights Reserved</span>
+      <span class="footer-castle">♟</span>
+      <span style="font-style:italic">Strategy. Intellect. Legacy.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── STAR FIELD ──
+  const sf = document.getElementById('starField');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star-dot';
+    const size = Math.random() * 2 + 0.5;
+    const a1 = (Math.random() * 0.12 + 0.04).toFixed(2);
+    const a2 = (Math.random() * 0.5 + 0.2).toFixed(2);
+    s.style.cssText = `
+      width:${size}px;height:${size}px;
+      top:${Math.random()*100}%;left:${Math.random()*100}%;
+      --a1:${a1};--a2:${a2};
+      --dur:${(Math.random()*4+2).toFixed(1)}s;
+      --del:${(Math.random()*6).toFixed(1)}s;
+    `;
+    sf.appendChild(s);
+  }
+
+  // ── CHESS BOARD ──
+  const board = document.getElementById('chessBoard');
+  // A simplified display position for the puzzle
+  const pieces = {
+    '8,1':'♜','8,8':'♜','8,4':'♛','7,7':'♟','7,6':'♟','7,5':'♚',
+    '6,6':'♟','6,5':'♞',
+    '2,1':'♖','2,8':'♖','1,4':'♕','1,8':'♔','2,7':'♙','2,6':'♙','1,6':'♙',
+    '3,7':'♙','4,5':'♘',
+  };
+  for (let row = 8; row >= 1; row--) {
+    for (let col = 1; col <= 8; col++) {
+      const sq = document.createElement('div');
+      const isLight = (row + col) % 2 === 0;
+      sq.className = `sq ${isLight ? 'light' : 'dark'}`;
+      const p = pieces[`${row},${col}`];
+      if (p) {
+        sq.textContent = p;
+        sq.style.color = p <= '♟' ? '#c8dff0' : '#c9a84c';
+        sq.style.textShadow = '0 1px 6px rgba(0,0,0,0.6)';
+      }
+      board.appendChild(sq);
+    }
+  }
+
+  // ── REVEAL ON SCROLL ──
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => io.observe(r));
+
+  // ── ARCHIVE FILTER ──
+  function filterArchive(e, cat) {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    e.target.classList.add('active');
+    document.querySelectorAll('.archive-item').forEach(item => {
+      if (cat === 'all' || item.dataset.cat === cat) {
+        item.style.display = 'grid';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  // ── PUZZLE REVEAL ──
+  function revealSolution() {
+    document.getElementById('solutionText').style.display = 'block';
+    document.getElementById('revealBtn').style.display = 'none';
+  }
+</script>
+</body>
+</html>
